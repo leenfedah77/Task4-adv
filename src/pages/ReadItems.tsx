@@ -22,38 +22,38 @@ const ReadItems = () => {
     "https://via.placeholder.com/300x200?text=No+Image&bg=E8E8E8&textColor=999";
 
   // صور افتراضية جميلة للعرض الأولي
-  const placeholderProducts = [
+  const placeholderProducts: Item[] = [
     {
       id: -1,
-      name: "Product 1",
+      name: "Premium Headphones",
       price: "99.99",
-      image_url: "https://via.placeholder.com/300x200?text=Product+1&bg=FF6B6B&textColor=fff",
-      created_at: "",
-      updated_at: "",
+      image_url: "https://via.placeholder.com/400x300?text=Premium+Headphones&bg=FF6B6B&textColor=fff",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
       id: -2,
-      name: "Product 2",
-      price: "149.99",
-      image_url: "https://via.placeholder.com/300x200?text=Product+2&bg=4ECDC4&textColor=fff",
-      created_at: "",
-      updated_at: "",
+      name: "Wireless Mouse",
+      price: "49.99",
+      image_url: "https://via.placeholder.com/400x300?text=Wireless+Mouse&bg=4ECDC4&textColor=fff",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
       id: -3,
-      name: "Product 3",
-      price: "199.99",
-      image_url: "https://via.placeholder.com/300x200?text=Product+3&bg=45B7D1&textColor=fff",
-      created_at: "",
-      updated_at: "",
+      name: "USB-C Cable",
+      price: "19.99",
+      image_url: "https://via.placeholder.com/400x300?text=USB-C+Cable&bg=45B7D1&textColor=fff",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
       id: -4,
-      name: "Product 4",
-      price: "249.99",
-      image_url: "https://via.placeholder.com/300x200?text=Product+4&bg=FFA502&textColor=fff",
-      created_at: "",
-      updated_at: "",
+      name: "Phone Stand",
+      price: "29.99",
+      image_url: "https://via.placeholder.com/400x300?text=Phone+Stand&bg=FFA502&textColor=fff",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
   ];
 
@@ -107,10 +107,11 @@ const ReadItems = () => {
         }
       );
 
-      console.log("✅ Product deleted");
+      console.log("✅ Product deleted successfully");
       setDeletePopup(false);
+      setSelectedItem(null);
       setDeleteLoading(false);
-      getItems();
+      await getItems();
     } catch (error) {
       console.error("❌ Delete Error:", error);
       setDeleteLoading(false);
@@ -148,16 +149,7 @@ const ReadItems = () => {
 
         {/* error message */}
         {error && (
-          <div
-            style={{
-              backgroundColor: "#ffebee",
-              color: "#c62828",
-              padding: "12px",
-              borderRadius: "4px",
-              marginBottom: "15px",
-              textAlign: "center",
-            }}
-          >
+          <div className="error-banner">
             {error}
           </div>
         )}
@@ -165,7 +157,7 @@ const ReadItems = () => {
         {/* grid */}
         <div className="grid">
           {loading ? (
-            <div style={{ textAlign: "center", width: "100%", padding: "40px" }}>
+            <div className="loading-container">
               <p>⏳ Loading products...</p>
             </div>
           ) : paginated.length > 0 ? (
@@ -174,7 +166,7 @@ const ReadItems = () => {
                 className="card"
                 key={item.id}
                 style={{
-                  opacity: item.id < 0 ? 0.5 : 1,
+                  opacity: item.id < 0 ? 0.6 : 1,
                   pointerEvents: item.id < 0 ? "none" : "auto",
                 }}
               >
@@ -186,7 +178,7 @@ const ReadItems = () => {
                         className="edit-btn"
                         title="Edit product"
                       >
-                        ✏️ Edit
+                        ✏️ EDIT
                       </button>
                     </Link>
 
@@ -199,7 +191,7 @@ const ReadItems = () => {
                       title="Delete product"
                       disabled={deleteLoading}
                     >
-                      🗑️ Delete
+                      🗑️ DELETE
                     </button>
                   </div>
                 )}
@@ -217,24 +209,26 @@ const ReadItems = () => {
                       onError={(e) => {
                         e.currentTarget.src = defaultImage;
                       }}
-                      style={{ cursor: "pointer" }}
+                      className="card-image"
                     />
                   </Link>
                 ) : (
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    style={{ cursor: "default" }}
+                    className="card-image placeholder"
                   />
                 )}
 
-                <h3>{item.name}</h3>
-                <p className="price">${item.price}</p>
+                <div className="card-content">
+                  <h3>{item.name}</h3>
+                  <p className="price">${item.price}</p>
+                </div>
               </div>
             ))
           ) : (
-            <div style={{ textAlign: "center", width: "100%", padding: "40px" }}>
-              <p>🔍 No products match your search</p>
+            <div className="empty-container">
+              <p>📦 No products match your search</p>
             </div>
           )}
         </div>
@@ -268,7 +262,11 @@ const ReadItems = () => {
                 deleteItem(selectedItem.id);
               }
             }}
-            onCancel={() => setDeletePopup(false)}
+            onCancel={() => {
+              setDeletePopup(false);
+              setSelectedItem(null);
+            }}
+            loading={deleteLoading}
           />
         )}
       </div>

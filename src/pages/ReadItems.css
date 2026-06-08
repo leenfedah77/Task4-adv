@@ -18,7 +18,7 @@
 }
 
 .topbar input {
-  padding: 10px;
+  padding: 12px;
   flex: 1;
   max-width: 300px;
   border: 1px solid #ccc;
@@ -30,15 +30,27 @@
   background: #ff9800;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .add-btn:hover {
   background: #e68900;
+  transform: translateY(-2px);
+}
+
+/* error banner */
+.error-banner {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 /* grid */
@@ -61,11 +73,11 @@
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* image */
-.card img {
+.card-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
@@ -74,19 +86,25 @@
   transition: opacity 0.3s;
 }
 
-.card img:hover {
-  opacity: 0.9;
+.card-image.placeholder {
+  cursor: default;
+}
+
+.card:hover .card-image:not(.placeholder) {
+  opacity: 0.7;
 }
 
 /* actions on hover */
 .card-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
-  gap: 8px;
+  gap: 12px;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
+  z-index: 10;
 }
 
 .card:hover .card-actions {
@@ -96,30 +114,37 @@
 .edit-btn,
 .delete-btn {
   border: none;
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 8px;
   color: white;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s;
+  transition: all 0.3s;
   text-decoration: none;
+  display: inline-block;
 }
 
 .edit-btn {
   background: #4caf50;
+  opacity: 1 !important;
 }
 
 .edit-btn:hover {
   background: #45a049;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
 .delete-btn {
   background: #f44336;
+  opacity: 1 !important;
 }
 
 .delete-btn:hover {
   background: #da190b;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
 .delete-btn:disabled {
@@ -128,8 +153,12 @@
 }
 
 /* card content */
+.card-content {
+  padding: 15px;
+}
+
 .card h3 {
-  margin: 12px;
+  margin: 0 0 10px;
   font-size: 18px;
   color: #333;
   white-space: nowrap;
@@ -138,7 +167,7 @@
 }
 
 .card p {
-  margin: 0 12px 12px;
+  margin: 0;
   color: #666;
   font-size: 16px;
   font-weight: bold;
@@ -146,6 +175,20 @@
 
 .price {
   color: #ff9800 !important;
+}
+
+/* loading and empty states */
+.loading-container,
+.empty-container {
+  text-align: center;
+  width: 100%;
+  padding: 40px;
+  color: #999;
+}
+
+.loading-container p,
+.empty-container p {
+  font-size: 16px;
 }
 
 /* pagination */
@@ -188,7 +231,7 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
-  .card img {
+  .card-image {
     height: 150px;
   }
 

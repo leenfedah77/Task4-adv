@@ -108,7 +108,7 @@ const Edit = () => {
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>
           ✏️ EDIT PRODUCT
         </h2>
 
@@ -128,7 +128,7 @@ const Edit = () => {
         )}
 
         {loadingItem ? (
-          <p>⏳ Loading product...</p>
+          <p style={{ textAlign: "center", color: "#999" }}>⏳ Loading product...</p>
         ) : (
           <>
             {/* Image Preview Box */}

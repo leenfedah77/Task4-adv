@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar/Sidebar";
 import "./Show.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import type { Item } from "../interfaces";
 
 const Show = () => {
@@ -46,13 +46,14 @@ const Show = () => {
         <div
           className="back"
           onClick={() => navigate("/dashboard")}
+          title="Go back"
         >
           ←
         </div>
 
         {loading ? (
-          <p>Loading product details...</p>
-        ) : (
+          <p style={{ textAlign: "center", color: "#999" }}>⏳ Loading product details...</p>
+        ) : item ? (
           <>
             <h1 className="title">{item?.name}</h1>
 
@@ -60,27 +61,27 @@ const Show = () => {
               <img
                 src={
                   item?.image_url ||
-                  "https://via.placeholder.com/300"
+                  "https://via.placeholder.com/400x300?text=No+Image&bg=E8E8E8&textColor=999"
                 }
                 alt={item?.name}
                 onError={(e) => {
                   e.currentTarget.src =
-                    "https://via.placeholder.com/300";
+                    "https://via.placeholder.com/400x300?text=No+Image";
                 }}
               />
             </div>
 
             <div className="info">
               <h2>
-                Price:
-                <span>{item?.price}$</span>
+                💰 Price:
+                <span>${item?.price}</span>
               </h2>
 
               <h2>
-                Added At:
+                📅 Added At:
                 <span>
                   {"created_at" in (item || {})
-                    ? item?.created_at
+                    ? new Date(item?.created_at!).toLocaleDateString()
                     : "-----"}
                 </span>
               </h2>
@@ -88,15 +89,30 @@ const Show = () => {
 
             <div className="updated">
               <h2>
-                Updated At:
+                ✏️ Updated At:
                 <span>
                   {"updated_at" in (item || {})
-                    ? item?.updated_at
+                    ? new Date(item?.updated_at!).toLocaleDateString()
                     : "-----"}
                 </span>
               </h2>
             </div>
+
+            {/* Action Buttons */}
+            <div className="action-buttons">
+              <Link to={`/dashboard/edit/${item.id}`}>
+                <button className="edit-action-btn">✏️ EDIT</button>
+              </Link>
+              <button
+                className="back-action-btn"
+                onClick={() => navigate("/dashboard")}
+              >
+                ← BACK
+              </button>
+            </div>
           </>
+        ) : (
+          <p>❌ Product not found</p>
         )}
       </div>
     </div>
