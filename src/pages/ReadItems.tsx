@@ -14,6 +14,7 @@ const ReadItems = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const perPage = 6;
 
@@ -58,6 +59,7 @@ const ReadItems = () => {
 
   const deleteItem = async (id: number) => {
     try {
+      setDeleteLoading(true);
       const token = localStorage.getItem("token");
       await axios.delete(
         `https://dashboard-i552.onrender.com/api/items/${id}`,
@@ -71,9 +73,11 @@ const ReadItems = () => {
 
       console.log("✅ Product deleted");
       setPopup(false);
+      setDeleteLoading(false);
       getItems();
     } catch (error) {
       console.error("❌ Delete Error:", error);
+      setDeleteLoading(false);
       alert("Failed to delete item");
     }
   };
@@ -135,10 +139,10 @@ const ReadItems = () => {
           ) : paginated.length > 0 ? (
             paginated.map((item) => (
               <div className="card" key={item.id}>
-                {/* actions */}
+                {/* actions - visible on hover */}
                 <div className="card-actions">
                   <Link to={`/dashboard/edit/${item.id}`}>
-                    <button className="edit-btn">✏️ Edit</button>
+                    <button className="edit-btn" title="Edit product">✏️ Edit</button>
                   </Link>
 
                   <button
@@ -147,12 +151,14 @@ const ReadItems = () => {
                       setSelected(item.id);
                       setPopup(true);
                     }}
+                    title="Delete product"
+                    disabled={deleteLoading}
                   >
                     🗑️ Delete
                   </button>
                 </div>
 
-                {/* show page */}
+                {/* image - clickable to show details */}
                 <Link to={`/dashboard/show/${item.id}`}>
                   <img
                     src={
@@ -164,6 +170,7 @@ const ReadItems = () => {
                     onError={(e) => {
                       e.currentTarget.src = defaultImage;
                     }}
+                    style={{ cursor: "pointer" }}
                   />
                 </Link>
 
@@ -202,7 +209,11 @@ const ReadItems = () => {
         {/* popup */}
         {popup && (
           <DeletePopup
-            onConfirm={() => selected && deleteItem(selected)}
+            onConfirm={() => {
+              if (selected) {
+                deleteItem(selected);
+              }
+            }}
             onCancel={() => setPopup(false)}
           />
         )}

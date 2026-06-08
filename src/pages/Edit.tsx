@@ -4,16 +4,15 @@ import Form from "../components/Form/Form";
 import { useEffect, useState } from "react";
 import type { Item, ItemCreated } from "../interfaces";
 import axios from "axios";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Edit = () => {
   const [oldData, setOldData] = useState<Item>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingItem, setLoadingItem] = useState(true);
   const [preview, setPreview] = useState<string>("");
+  const [newImage, setNewImage] = useState<string>("");
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,12 +20,12 @@ const Edit = () => {
   useEffect(() => {
     const getItem = async () => {
       try {
+        setLoadingItem(true);
         const response = await axios.get(
           `https://dashboard-i552.onrender.com/api/items/${id}`,
           {
             headers: {
-              Authorization:
-                localStorage.getItem("token") || "",
+              Authorization: localStorage.getItem("token") || "",
               Accept: "application/json",
             },
           }
@@ -34,9 +33,11 @@ const Edit = () => {
 
         setOldData(response.data.data);
         setPreview(response.data.data.image_url);
+        setLoadingItem(false);
       } catch (err) {
         console.log("Error fetching item:", err);
         setError("Failed to load item details");
+        setLoadingItem(false);
       }
     };
 
@@ -71,19 +72,19 @@ const Edit = () => {
         body,
         {
           headers: {
-            Authorization:
-              localStorage.getItem("token") || "",
+            Authorization: localStorage.getItem("token") || "",
             Accept: "application/json",
-            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      console.log("Update Success:", response.data);
+      console.log("✅ Update Success:", response.data);
       setLoading(false);
-      navigate("/dashboard");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
     } catch (err: any) {
-      console.log("Update Error:", err);
+      console.log("❌ Update Error:", err);
       setLoading(false);
 
       setError(
@@ -93,48 +94,92 @@ const Edit = () => {
     }
   };
 
+  // Handle image change for preview
+  const handleImagePreview = (file: Blob) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setNewImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className={styles.addpage}>
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          ✏️ EDIT PRODUCT
+        </h2>
 
-        <div className={styles.previewBox}>
-          <img
-            src={
-              preview ||
-              "https://via.placeholder.com/300"
-            }
-            alt="preview"
-            className={styles.previewImage}
-          />
-        </div>
+        {error && (
+          <div
+            style={{
+              backgroundColor: "#ffebee",
+              color: "#c62828",
+              padding: "12px",
+              borderRadius: "4px",
+              marginBottom: "15px",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
-        <Form<ItemCreated>
-          title="EDIT ITEM"
-          submit={loading ? "Loading..." : "SAVE"}
-          onSubmit={submitData}
-          inputs={[
-            {
-              type: "text",
-              name: "name",
-              placeholder: "Item name",
-              value: oldData?.name,
-            },
-            {
-              type: "text",
-              name: "price",
-              placeholder: "Item price",
-              value: oldData?.price,
-            },
-            {
-              type: "file",
-              name: "image",
-              placeholder: "",
-            },
-          ]}
-        />
+        {loadingItem ? (
+          <p>⏳ Loading product...</p>
+        ) : (
+          <>
+            {/* Image Preview Box */}
+            <div className={styles.previewBox}>
+              <img
+                src={
+                  newImage ||
+                  preview ||
+                  "https://via.placeholder.com/300x200?text=No+Image&bg=E8E8E8&textColor=999"
+                }
+                alt="product preview"
+                className={styles.previewImage}
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://via.placeholder.com/300x200?text=No+Image";
+                }}
+              />
+            </div>
+
+            <Form<ItemCreated>
+              title=""
+              submit={loading ? "⏳ Loading..." : "✅ UPDATE PRODUCT"}
+              onSubmit={(formData) => {
+                // Update preview when form changes image
+                if (formData.image && formData.image instanceof Blob) {
+                  handleImagePreview(formData.image);
+                }
+                submitData(formData);
+              }}
+              inputs={[
+                {
+                  type: "text",
+                  name: "name",
+                  placeholder: "Product name",
+                  value: oldData?.name,
+                },
+                {
+                  type: "number",
+                  name: "price",
+                  placeholder: "Product price",
+                  value: oldData?.price,
+                },
+                {
+                  type: "file",
+                  name: "image",
+                  placeholder: "",
+                },
+              ]}
+            />
+          </>
+        )}
       </div>
     </div>
   );
