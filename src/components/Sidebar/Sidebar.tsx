@@ -1,46 +1,65 @@
-// Sidebar.tsx
-//import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Sidebar.css";
-const Sidebar = () => {
-  /*const logout=()=>{
-    if(localStorage.getItem("token")){
-      fetch("https://dashboard-i552.onrender.com/api/logout" , {
-        method:"POST",
-        headers:{
-          "AUTHORIZATION":localStorage.getItem("token"),
-          "Accept":"application/json"
-        }
-      })
-      .then(res=>res.json())
-      .then(res=>{
 
-        console.log(res)
-        localStorage.removeItem("token")
-      })
-      .catch(err=>console.log(err))
+const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        localStorage.removeItem("token");
+        navigate("/");
+        return;
+      }
+
+      await axios.post(
+        "https://dashboard-i552.onrender.com/api/logout",
+        {},
+        {
+          headers: {
+            Authorization: token,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      localStorage.removeItem("token");
+      navigate("/");
+    } catch (err) {
+      console.log("Logout Error:", err);
+      localStorage.removeItem("token");
+      navigate("/");
     }
-  }*/
+  };
+
   return (
     <div className="sidebar">
-     <img  className=' focal' src="/image/focal.png" alt="img" />
+      <img className="focal" src="/image/focal.png" alt="img" />
 
       <div className="profile">
-        <img
-          src="/image/avatar.jpg"
-          alt=""
-        />
-
+        <img src="/image/avatar.jpg" alt="avatar" />
         <h3>Leen Fedah</h3>
       </div>
 
       <div className="menu">
-        <button className="active"><img className="icon" src="/image/Vector.png" alt='image' />Products</button>
-        <button><img className="icon" src="/image/Vector (1).png" alt='image' />Favorites</button>
-        <button><img className="icon" src="/image/Vector (1).png" alt='image' />Order List</button>
+        <button className="active">
+          <img className="icon" src="/image/Vector.png" alt="icon" />
+          Products
+        </button>
+        <button>
+          <img className="icon" src="/image/Vector (1).png" alt="icon" />
+          Favorites
+        </button>
+        <button>
+          <img className="icon" src="/image/Vector (1).png" alt="icon" />
+          Order List
+        </button>
       </div>
 
       <div className="logout">
-        <button >Logout</button>
+        <button onClick={logout}>Logout</button>
       </div>
     </div>
   );

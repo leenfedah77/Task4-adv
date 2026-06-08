@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -13,7 +12,7 @@ const Dashboard = () => {
     if (!token) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   const logout = async () => {
     try {
@@ -59,4 +58,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

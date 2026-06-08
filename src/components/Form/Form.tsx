@@ -1,25 +1,19 @@
-
-
-
-import { useRef, type FormEvent } from "react";
+import { useRef, type FormEvent, useState } from "react";
 import type { loginData } from "../../interfaces";
-import type  {RegisterData} from "../../interfaces"
-import type { ItemCreated } from "../../pages/Edit";
-
-
+import type { RegisterData } from "../../interfaces";
+import type { ItemCreated } from "../../interfaces";
 import styles from "./Form.module.css";
-
-type FormValues = loginData | RegisterData | ItemCreated;
 import type { Input } from "../../interfaces";
 
- interface FormProps<T extends FormValues> {
+type FormValues = loginData | RegisterData | ItemCreated;
+
+interface FormProps<T extends FormValues> {
   title: string;
   inputs: Array<Input>;
   submit: string;
   setData?: (data: T) => void;
   setSubmit?: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit?: (data: T) => void | Promise<void>;
-  
 }
 
 const Form = <T extends FormValues>({
@@ -29,22 +23,70 @@ const Form = <T extends FormValues>({
   setData,
   setSubmit,
   onSubmit,
- 
 }: FormProps<T>) => {
   const data = useRef<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<Record<string, string>>({});
 
-  const sendData = (event: FormEvent<HTMLFormElement>) => {
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    inputs.forEach((input) => {
+      if (input.type === "file") return;
+      if (!data.current[input.name] || data.current[input.name].trim() === "") {
+        newErrors[input.name] = `${input.name} is required`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const sendData = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
-    const formData = { ...data.current } as T;
-
-    if (setData) {
-      setData(formData);
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
     }
 
-    onSubmit?.(formData);
+    try {
+      const formData = { ...data.current } as T;
 
-    setSubmit?.(true);
+      if (setData) {
+        setData(formData);
+      }
+
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
+
+      setSubmit?.(true);
+    } catch (error) {
+      console.log("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (inputName: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview((prev) => ({
+          ...prev,
+          [inputName]: e.target?.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+      data.current = {
+        ...data.current,
+        [inputName]: file,
+      };
+    }
   };
 
   return (
@@ -65,16 +107,24 @@ const Form = <T extends FormValues>({
                   type={input.type}
                   name={input.name}
                   placeholder={input.placeholder}
-                  //onChange={input.onChange}
                   defaultValue={input.value}
                   required
-                  onChange={(event) =>
-                    (data.current = {
+                  onChange={(event) => {
+                    data.current = {
                       ...data.current,
                       [input.name]: event.target.value,
-                    })
-                  }
+                    };
+                    setErrors((prev) => ({
+                      ...prev,
+                      [input.name]: "",
+                    }));
+                  }}
                 />
+                {errors[input.name] && (
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors[input.name]}
+                  </span>
+                )}
               </div>
             ) : (
               <div className={styles.imagecontainer} key={index}>
@@ -83,16 +133,16 @@ const Form = <T extends FormValues>({
                 </label>
 
                 <label className={styles.imagebox}>
-                  {input.value ? (
+                  {imagePreview[input.name] || input.value ? (
                     <img
-                      src={input.value}
-                      alt=""
+                      src={imagePreview[input.name] || input.value}
+                      alt="preview"
                       width={200}
                       className={styles.previewimage}
                     />
                   ) : (
                     <span className={styles.uploadtext}>
-                      Upload Image
+                      📸 Click to upload image
                     </span>
                   )}
 
@@ -101,17 +151,8 @@ const Form = <T extends FormValues>({
                     type={input.type}
                     name={input.name}
                     placeholder={input.placeholder}
-                    onChange={(event) =>
-                      (data.current = {
-                        ...data.current,
-                        [input.name]:
-                          input.type === "file"
-                            ? event?.target?.files?.[0]
-                            : event.target.value,
-                      })
-                    }
-                    defaultValue={input.value}
-                    required={input.value ? false : true}
+                    onChange={(event) => handleImageChange(input.name, event)}
+                    required={!imagePreview[input.name] && !input.value}
                   />
                 </label>
               </div>
@@ -119,8 +160,9 @@ const Form = <T extends FormValues>({
           })}
         </div>
       </div>
-      <button className="submitBtn">{submit}</button> 
-      
+      <button className="submitBtn" disabled={isSubmitting}>
+        {submit}
+      </button>
     </form>
   );
 };

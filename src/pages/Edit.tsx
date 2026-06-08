@@ -1,38 +1,21 @@
-
 import Sidebar from "../components/Sidebar/Sidebar";
 import styles from "./Edit.module.css";
 import Form from "../components/Form/Form";
 import { useEffect, useState } from "react";
-import type { Item } from "../interfaces";
+import type { Item, ItemCreated } from "../interfaces";
 import axios from "axios";
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
 
-export type ItemCreated = Omit<
-  Item,
-  "created_at" |
-    "id" |
-    "updated_at" |
-    "image_url"
-> & {
-  image: Blob;
-};
-
 const Edit = () => {
-  const [oldData, setOldData] =
-    useState<Item>();
-
-  const [error, setError] = useState<
-    string | null
-  >(null);
-
-  const [preview, setPreview] =
-    useState<string>("");
+  const [oldData, setOldData] = useState<Item>();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<string>("");
 
   const { id } = useParams();
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,54 +26,41 @@ const Edit = () => {
           {
             headers: {
               Authorization:
-                localStorage.getItem(
-                  "token"
-                ) || "",
-              Accept:
-                "application/json",
+                localStorage.getItem("token") || "",
+              Accept: "application/json",
             },
           }
         );
 
         setOldData(response.data.data);
-
-        setPreview(
-          response.data.data.image_url
-        );
+        setPreview(response.data.data.image_url);
       } catch (err) {
-        console.log(err);
+        console.log("Error fetching item:", err);
+        setError("Failed to load item details");
       }
     };
 
-    getItem();
+    if (id) getItem();
   }, [id]);
 
-  const submitData = async (
-    formData: ItemCreated
-  ) => {
+  const submitData = async (formData: ItemCreated) => {
     setError(null);
+    setLoading(true);
 
     const body = new FormData();
 
     body.append(
       "name",
-      formData.name
-        ? formData.name
-        : oldData?.name || ""
+      formData.name ? formData.name : oldData?.name || ""
     );
 
     body.append(
       "price",
-      formData.price
-        ? formData.price
-        : oldData?.price || ""
+      formData.price ? formData.price : oldData?.price || ""
     );
 
     if (formData.image) {
-      body.append(
-        "image",
-        formData.image
-      );
+      body.append("image", formData.image);
     }
 
     body.append("_method", "PUT");
@@ -102,20 +72,19 @@ const Edit = () => {
         {
           headers: {
             Authorization:
-              localStorage.getItem(
-                "token"
-              ) || "",
-            Accept:
-              "application/json",
+              localStorage.getItem("token") || "",
+            Accept: "application/json",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      console.log(response.data);
-
+      console.log("Update Success:", response.data);
+      setLoading(false);
       navigate("/dashboard");
     } catch (err: any) {
-      console.log(err);
+      console.log("Update Error:", err);
+      setLoading(false);
 
       setError(
         err?.response?.data?.message ||
@@ -129,11 +98,7 @@ const Edit = () => {
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        {error && (
-          <p style={{ color: "red" }}>
-            {error}
-          </p>
-        )}
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
         <div className={styles.previewBox}>
           <img
@@ -148,7 +113,7 @@ const Edit = () => {
 
         <Form<ItemCreated>
           title="EDIT ITEM"
-          submit="SAVE"
+          submit={loading ? "Loading..." : "SAVE"}
           onSubmit={submitData}
           inputs={[
             {
@@ -176,5 +141,3 @@ const Edit = () => {
 };
 
 export default Edit;
-
-
