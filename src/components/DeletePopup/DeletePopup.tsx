@@ -9,15 +9,19 @@ const DeletePopup = ({ onConfirm, onCancel }: DeletePopupProps) => {
   return (
     <div className="popup-overlay">
       <div className="popup-box">
-        <h3>ARE YOU SURE YOU WANT TO DELETE THE PRODUCT?</h3>
+        <h3>🗑️ DELETE PRODUCT?</h3>
+        <p>Are you sure you want to delete this product?</p>
+        <p style={{ fontSize: "12px", color: "#999" }}>
+          This action cannot be undone.
+        </p>
 
         <div className="popup-buttons">
-          <button className="popup-btn" onClick={onConfirm}>
-            Yes
+          <button className="popup-btn popup-yes" onClick={onConfirm}>
+            ✅ YES
           </button>
 
-          <button className="popup-btn" onClick={onCancel}>
-            No
+          <button className="popup-btn popup-no" onClick={onCancel}>
+            ❌ NO
           </button>
         </div>
       </div>

@@ -1,48 +1,89 @@
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.3);
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 90%;
+  max-width: 350px;
+  animation: popupSlideIn 0.3s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
   }
-  
-  .popup-box {
-    width: 500px;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
-  
-  .popup-box h3 {
-    font-size: 20px;
-    margin-bottom: 40px;
-  }
-  
-  .popup-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-  }
-  
-  .popup-btn {
-    width: 120px;
-    height: 45px;
-    border: none;
-    background: orange;
-    color: white;
-    font-size: 20px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .popup-btn:hover {
-    opacity: 0.8;
-  }
+}
+
+.popup-box h3 {
+  margin: 0 0 15px;
+  color: #333;
+  font-size: 18px;
+}
+
+.popup-box p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  justify-content: center;
+}
+
+.popup-btn {
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s;
+  flex: 1;
+}
+
+.popup-yes {
+  background: #f44336;
+}
+
+.popup-yes:hover {
+  background: #da190b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.popup-no {
+  background: #2196f3;
+}
+
+.popup-no:hover {
+  background: #0b7dda;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.popup-btn:active {
+  transform: translateY(0);
+}
