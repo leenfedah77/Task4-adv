@@ -33,8 +33,17 @@ const Form = <T extends FormValues>({
     const newErrors: Record<string, string> = {};
 
     inputs.forEach((input) => {
-      if (input.type === "file") return;
-      if (!data.current[input.name] || data.current[input.name].trim() === "") {
+      // Skip file validation if preview exists
+      if (input.type === "file" && imagePreview[input.name]) {
+        return;
+      }
+
+      // Required text inputs
+      if (
+        input.type !== "file" &&
+        (!data.current[input.name] ||
+          data.current[input.name].toString().trim() === "")
+      ) {
         newErrors[input.name] = `${input.name} is required`;
       }
     });
@@ -45,12 +54,12 @@ const Form = <T extends FormValues>({
 
   const sendData = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsSubmitting(true);
 
     if (!validateForm()) {
-      setIsSubmitting(false);
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const formData = { ...data.current } as T;
@@ -71,15 +80,20 @@ const Form = <T extends FormValues>({
     }
   };
 
-  const handleImageChange = (inputName: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (
+    inputName: string,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        const result = e.target?.result as string;
         setImagePreview((prev) => ({
           ...prev,
-          [inputName]: e.target?.result as string,
+          [inputName]: result,
         }));
+        console.log("📸 Image preview ready:", inputName);
       };
       reader.readAsDataURL(file);
       data.current = {
@@ -91,76 +105,110 @@ const Form = <T extends FormValues>({
 
   return (
     <form onSubmit={sendData} className={styles.formmain}>
-      <h1 className={styles.formtitle}>{title}</h1>
+      {title && <h1 className={styles.formtitle}>{title}</h1>}
 
       <div className={styles.formcontent}>
         <div className={styles.inputcontainer}>
           {inputs.map((input, index) => {
-            return input.type !== "file" ? (
-              <div className={styles.inputgroup} key={index}>
-                <label className={styles.inputlabel}>
-                  {input.name}
-                </label>
-
-                <input
-                  className={styles.formInput}
-                  type={input.type}
-                  name={input.name}
-                  placeholder={input.placeholder}
-                  defaultValue={input.value}
-                  required
-                  onChange={(event) => {
-                    data.current = {
-                      ...data.current,
-                      [input.name]: event.target.value,
-                    };
-                    setErrors((prev) => ({
-                      ...prev,
-                      [input.name]: "",
-                    }));
-                  }}
-                />
-                {errors[input.name] && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors[input.name]}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className={styles.imagecontainer} key={index}>
-                <label className={styles.imagetitle}>
-                  Image
-                </label>
-
-                <label className={styles.imagebox}>
-                  {imagePreview[input.name] || input.value ? (
-                    <img
-                      src={imagePreview[input.name] || input.value}
-                      alt="preview"
-                      width={200}
-                      className={styles.previewimage}
-                    />
-                  ) : (
-                    <span className={styles.uploadtext}>
-                      📸 Click to upload image
-                    </span>
-                  )}
+            if (input.type !== "file") {
+              return (
+                <div className={styles.inputgroup} key={index}>
+                  <label className={styles.inputlabel}>{input.name}</label>
 
                   <input
-                    className={styles.imageinput}
+                    className={styles.formInput}
                     type={input.type}
                     name={input.name}
                     placeholder={input.placeholder}
-                    onChange={(event) => handleImageChange(input.name, event)}
-                    required={!imagePreview[input.name] && !input.value}
+                    defaultValue={input.value || ""}
+                    required
+                    onChange={(event) => {
+                      data.current = {
+                        ...data.current,
+                        [input.name]: event.target.value,
+                      };
+                      setErrors((prev) => ({
+                        ...prev,
+                        [input.name]: "",
+                      }));
+                    }}
                   />
-                </label>
-              </div>
-            );
+                  {errors[input.name] && (
+                    <span style={{ color: "red", fontSize: "12px" }}>
+                      ❌ {errors[input.name]}
+                    </span>
+                  )}
+                </div>
+              );
+            } else {
+              return (
+                <div className={styles.imagecontainer} key={index}>
+                  <label className={styles.imagetitle}>📸 Image</label>
+
+                  <label className={styles.imagebox}>
+                    {imagePreview[input.name] ? (
+                      <img
+                        src={imagePreview[input.name]}
+                        alt="preview"
+                        className={styles.previewimage}
+                        style={{
+                          maxWidth: "200px",
+                          maxHeight: "200px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    ) : input.value ? (
+                      <img
+                        src={input.value}
+                        alt="existing"
+                        className={styles.previewimage}
+                        style={{
+                          maxWidth: "200px",
+                          maxHeight: "200px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minHeight: "150px",
+                        }}
+                      >
+                        <span style={{ fontSize: "48px" }}>📷</span>
+                        <span className={styles.uploadtext}>
+                          Click to upload image
+                        </span>
+                      </div>
+                    )}
+
+                    <input
+                      className={styles.imageinput}
+                      type="file"
+                      name={input.name}
+                      accept="image/*"
+                      onChange={(event) => handleImageChange(input.name, event)}
+                      required={!imagePreview[input.name] && !input.value}
+                    />
+                  </label>
+                </div>
+              );
+            }
           })}
         </div>
       </div>
-      <button className="submitBtn" disabled={isSubmitting}>
+      <button
+        className="submitBtn"
+        disabled={isSubmitting}
+        type="submit"
+        style={{
+          opacity: isSubmitting ? 0.6 : 1,
+          cursor: isSubmitting ? "not-allowed" : "pointer",
+        }}
+      >
         {submit}
       </button>
     </form>

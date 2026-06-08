@@ -12,44 +12,63 @@ const AddItem = () => {
   const [loading, setLoading] = useState(false);
 
   const submitData = async (formData: ItemCreated) => {
-    setError(null);
-    setLoading(true);
-
-    const body = new FormData();
-
-    body.append("name", formData.name);
-    body.append("price", formData.price);
-    body.append("image", formData.image);
-
     try {
+      setError(null);
+      setLoading(true);
+
+      // التحقق من البيانات
+      if (!formData.name || !formData.price || !formData.image) {
+        setError("Please fill all fields including image");
+        setLoading(false);
+        return;
+      }
+
+      const body = new FormData();
+      body.append("name", formData.name);
+      body.append("price", formData.price);
+      body.append("image", formData.image);
+
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("You must be logged in");
+        setLoading(false);
+        navigate("/");
+        return;
+      }
+
+      // تصحيح الـ headers
+      const config = {
+        headers: {
+          Authorization: token,
+          Accept: "application/json",
+        },
+      };
 
       const res = await axios.post(
         "https://dashboard-i552.onrender.com/api/items",
         body,
-        {
-          headers: {
-            Authorization: token || "",
-            Accept: "application/json",
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        config
       );
 
-      console.log("SUCCESS:", res.data);
+      console.log("✅ SUCCESS:", res.data);
       setLoading(false);
 
-      navigate("/dashboard", {
-        replace: true,
-      });
+      // انتظر قليلاً قبل الانتقال
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
     } catch (err: any) {
-      console.log("ERROR:", err);
+      console.error("❌ ERROR:", err.response?.data || err.message);
       setLoading(false);
 
-      setError(
+      const errorMsg =
         err?.response?.data?.message ||
-          "Upload failed. Please try again."
-      );
+        err?.response?.data?.error ||
+        err.message ||
+        "Upload failed. Please try again.";
+
+      setError(errorMsg);
     }
   };
 
@@ -58,22 +77,39 @@ const AddItem = () => {
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          ➕ ADD NEW PRODUCT
+        </h2>
+
+        {error && (
+          <div
+            style={{
+              backgroundColor: "#ffebee",
+              color: "#c62828",
+              padding: "12px",
+              borderRadius: "4px",
+              marginBottom: "15px",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <Form
-          title="ADD NEW ITEM"
-          submit={loading ? "Loading..." : "SAVE"}
+          title=""
+          submit={loading ? "⏳ Loading..." : "✅ SAVE PRODUCT"}
           onSubmit={submitData}
           inputs={[
             {
               name: "name",
               type: "text",
-              placeholder: "Product Name",
+              placeholder: "Enter product name",
             },
             {
               name: "price",
-              type: "text",
-              placeholder: "Product Price",
+              type: "number",
+              placeholder: "Enter product price",
             },
             {
               name: "image",
