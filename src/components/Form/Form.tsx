@@ -33,12 +33,12 @@ const Form = <T extends FormValues>({
     const newErrors: Record<string, string> = {};
 
     inputs.forEach((input) => {
-      // Skip file validation if preview exists
+      
       if (input.type === "file" && imagePreview[input.name]) {
         return;
       }
 
-      // Required text inputs
+      
       if (
         input.type !== "file" &&
         (!data.current[input.name] ||
@@ -135,7 +135,7 @@ const Form = <T extends FormValues>({
                   />
                   {errors[input.name] && (
                     <span style={{ color: "red", fontSize: "12px" }}>
-                      ❌ {errors[input.name]}
+                       {errors[input.name]}
                     </span>
                   )}
                 </div>
@@ -143,7 +143,7 @@ const Form = <T extends FormValues>({
             } else {
               return (
                 <div className={styles.imagecontainer} key={index}>
-                  <label className={styles.imagetitle}>📸 Image</label>
+                  <label className={styles.imagetitle}> Image</label>
 
                   <label className={styles.imagebox}>
                     {imagePreview[input.name] ? (
@@ -178,7 +178,7 @@ const Form = <T extends FormValues>({
                           minHeight: "150px",
                         }}
                       >
-                        <span style={{ fontSize: "48px" }}>📷</span>
+                        <span style={{ fontSize: "48px" }}></span>
                         <span className={styles.uploadtext}>
                           Click to upload image
                         </span>

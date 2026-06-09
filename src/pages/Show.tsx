@@ -1,119 +1,109 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import Sidebar from "../components/Sidebar/Sidebar";
-import "./Show.css";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import type { Item } from "../interfaces";
+import { useParams, useNavigate } from "react-router-dom";
+
+import type { Item } from "../interfaces"; 
+import ShowItemImage from "../components/ShowItem/ShowItemImage";
+import ShowItemDetails from "../components/ShowItem/ShowItemDetails";
+import "../components/ShowItem/ShowItem.css"
 
 const Show = () => {
-  const [item, setItem] = useState<Item>();
-  const [loading, setLoading] = useState(true);
-
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  
+  const [product, setProduct] = useState<Item | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const getItem = async () => {
+    const fetchProductDetails = async () => {
       try {
-        setLoading(true);
-        const response = await axios.get(
-          `https://dashboard-i552.onrender.com/api/items/${id}`,
-          {
-            headers: {
-              Authorization:
-                localStorage.getItem("token") || "",
-              Accept: "application/json",
-            },
-          }
-        );
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        
+        const response = await fetch(`https://dashboard-i552.onrender.com/api/items/${id}`, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
 
-        setItem(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        console.log("Error fetching item:", err);
-        setLoading(false);
+        if (!response.ok) throw new Error("Failed to load product details.");
+        
+        const result = await response.json();
+        setProduct(result);
+      } catch (error: unknown) {
+        if (error instanceof Error) setErrorMessage(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (id) getItem();
+    if (id) fetchProductDetails();
   }, [id]);
 
+  // path normalization and validation for image URL
+  const productData = product as Record<string, unknown> | null;
+  const rawImagePath = productData?.image_url || productData?.image;
+  
+  let imageUrl = "https://via.placeholder.com/350"; 
+
+  if (rawImagePath && typeof rawImagePath === "string") {
+    let trimmedPath = rawImagePath.trim();
+    
+    if (trimmedPath.startsWith("http://")) {
+      trimmedPath = trimmedPath.replace("http://", "https://");
+    }
+    
+    if (trimmedPath.startsWith("https://")) {
+      imageUrl = trimmedPath;
+    } else {
+      const baseUrl = "https://dashboard-i552.onrender.com".replace(/\/$/, "");
+      const cleanImagePath = trimmedPath.replace(/^\//, "");
+      imageUrl = `${baseUrl}/${cleanImagePath}`;
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="loading-container-center">
+       
+        <p>Fetching details...</p>
+      </div>
+    );
+  }
+
+  if (errorMessage || !product) {
+    return (
+      <div className="error-container-center">
+        <p>{errorMessage || "Product not found."}</p>
+        <button onClick={() => navigate("/dashboard")} className="back-circle-btn">Back</button>
+      </div>
+    );
+  }
+
   return (
-    <div className="showpage">
-      <Sidebar />
+    <div className="show-item-page-container">
+      
+      <button className="back-circle-btn" onClick={() => navigate("/dashboard")} title="Go Back">
+       
+      </button>
 
-      <div className="showcontainer">
-        <div
-          className="back"
-          onClick={() => navigate("/dashboard")}
-          title="Go back"
-        >
-          ←
+      
+      <div className="show-item-card-wrapper">
+        <h1 className="show-item-main-title">{product.name}</h1>
+
+        <div className="show-item-layout-grid">
+          
+          <ShowItemImage imageUrl={imageUrl} altText={product.name} />
+          
+          
+          <ShowItemDetails 
+            price={product.price} 
+            createdAt={product.created_at} 
+            updatedAt={product.updated_at} 
+          />
         </div>
-
-        {loading ? (
-          <p style={{ textAlign: "center", color: "#999" }}>⏳ Loading product details...</p>
-        ) : item ? (
-          <>
-            <h1 className="title">{item?.name}</h1>
-
-            <div className="imageBox">
-              <img
-                src={
-                  item?.image_url ||
-                  "https://via.placeholder.com/400x300?text=No+Image&bg=E8E8E8&textColor=999"
-                }
-                alt={item?.name}
-                onError={(e) => {
-                  e.currentTarget.src =
-                    "https://via.placeholder.com/400x300?text=No+Image";
-                }}
-              />
-            </div>
-
-            <div className="info">
-              <h2>
-                💰 Price:
-                <span>${item?.price}</span>
-              </h2>
-
-              <h2>
-                📅 Added At:
-                <span>
-                  {"created_at" in (item || {})
-                    ? new Date(item?.created_at!).toLocaleDateString()
-                    : "-----"}
-                </span>
-              </h2>
-            </div>
-
-            <div className="updated">
-              <h2>
-                ✏️ Updated At:
-                <span>
-                  {"updated_at" in (item || {})
-                    ? new Date(item?.updated_at!).toLocaleDateString()
-                    : "-----"}
-                </span>
-              </h2>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="action-buttons">
-              <Link to={`/dashboard/edit/${item.id}`}>
-                <button className="edit-action-btn">✏️ EDIT</button>
-              </Link>
-              <button
-                className="back-action-btn"
-                onClick={() => navigate("/dashboard")}
-              >
-                ← BACK
-              </button>
-            </div>
-          </>
-        ) : (
-          <p>❌ Product not found</p>
-        )}
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ const AddItem = () => {
       setError(null);
       setLoading(true);
 
-      // التحقق من البيانات
+      
       if (!formData.name || !formData.price || !formData.image) {
         setError("Please fill all fields including image");
         setLoading(false);
@@ -37,7 +37,7 @@ const AddItem = () => {
         return;
       }
 
-      // تصحيح الـ headers
+      
       const config = {
         headers: {
           Authorization: token,
@@ -51,15 +51,15 @@ const AddItem = () => {
         config
       );
 
-      console.log("✅ SUCCESS:", res.data);
+      console.log(" SUCCESS:", res.data);
       setLoading(false);
 
-      // انتظر قليلاً قبل الانتقال
+   
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
     } catch (err: any) {
-      console.error("❌ ERROR:", err.response?.data || err.message);
+      console.error(" ERROR:", err.response?.data || err.message);
       setLoading(false);
 
       const errorMsg =
@@ -77,8 +77,8 @@ const AddItem = () => {
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-          ➕ ADD NEW PRODUCT
+        <h2 style={{ textAlign: "start", marginBottom: "20px" }}>
+           ADD NEW PRODUCT
         </h2>
 
         {error && (
@@ -98,7 +98,7 @@ const AddItem = () => {
 
         <Form
           title=""
-          submit={loading ? "⏳ Loading..." : "✅ SAVE PRODUCT"}
+          submit={loading ? " Loading..." : " Save"}
           onSubmit={submitData}
           inputs={[
             {

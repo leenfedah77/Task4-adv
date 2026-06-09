@@ -11,7 +11,7 @@ const Edit = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingItem, setLoadingItem] = useState(true);
-  const [preview, setPreview] = useState<string>("");
+  //const [preview, setPreview] = useState<string>("");
   const [newImage, setNewImage] = useState<string>("");
 
   const { id } = useParams();
@@ -32,7 +32,7 @@ const Edit = () => {
         );
 
         setOldData(response.data.data);
-        setPreview(response.data.data.image_url);
+        //setPreview(response.data.data.image_url);
         setLoadingItem(false);
       } catch (err) {
         console.log("Error fetching item:", err);
@@ -78,13 +78,13 @@ const Edit = () => {
         }
       );
 
-      console.log("✅ Update Success:", response.data);
+      console.log(" Update Success:", response.data);
       setLoading(false);
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
     } catch (err: any) {
-      console.log("❌ Update Error:", err);
+      console.log(" Update Error:", err);
       setLoading(false);
 
       setError(
@@ -108,8 +108,8 @@ const Edit = () => {
       <Sidebar />
 
       <div className={styles.addcontainer}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>
-          ✏️ EDIT PRODUCT
+        <h2 style={{ textAlign: "start", marginBottom: "20px", color: "#333" }}>
+           EDIT PRODUCT
         </h2>
 
         {error && (
@@ -128,31 +128,17 @@ const Edit = () => {
         )}
 
         {loadingItem ? (
-          <p style={{ textAlign: "center", color: "#999" }}>⏳ Loading product...</p>
+          <p style={{ textAlign: "center", color: "#999" }}> Loading product...</p>
         ) : (
           <>
-            {/* Image Preview Box */}
-            <div className={styles.previewBox}>
-              <img
-                src={
-                  newImage ||
-                  preview ||
-                  "https://via.placeholder.com/300x200?text=No+Image&bg=E8E8E8&textColor=999"
-                }
-                alt="product preview"
-                className={styles.previewImage}
-                onError={(e) => {
-                  e.currentTarget.src =
-                    "https://via.placeholder.com/300x200?text=No+Image";
-                }}
-              />
-            </div>
+            
+            
 
             <Form<ItemCreated>
               title=""
-              submit={loading ? "⏳ Loading..." : "✅ UPDATE PRODUCT"}
+              submit={loading ? " Loading..." : " Save"}
               onSubmit={(formData) => {
-                // Update preview when form changes image
+              
                 if (formData.image && formData.image instanceof Blob) {
                   handleImagePreview(formData.image);
                 }

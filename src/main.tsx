@@ -29,10 +29,7 @@ const router = createBrowserRouter([
     element:<Signup/>,
   },
   
-  //{
-   // path:"/show",
-   // element:<Show/>,
-  //},
+  
   
   {
     path:"/dashboard",
@@ -50,10 +47,7 @@ const router = createBrowserRouter([
         path:"edit/:id",
        element:<Edit/>
       },
-      /*{
-        path:"delete/:id",
-       element:</>
-      },*/
+      
       {
         path:"show/:id",
        element:<Show/>
@@ -94,16 +88,9 @@ const router = createBrowserRouter([
       
       }
     ],*/
-      /*{
-        path:"/add",
-        element:<AddTasks/>
-          
-          },
-          {
-            path:"/edit/:id",
-            element:<EditTask/>
+      
               
-              },*/
+              
   
   ])
   createRoot(document.getElementById('root')!).render(

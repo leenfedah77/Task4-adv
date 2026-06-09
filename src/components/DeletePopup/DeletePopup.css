@@ -71,23 +71,23 @@
 }
 
 .popup-yes {
-  background: #f44336;
+  background: #f29728;
 }
 
 .popup-yes:hover:not(:disabled) {
-  background: #da190b;
+  background: #f79319;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+  box-shadow: 0 4px 12px rgba(237, 233, 233, 0.3);
 }
 
 .popup-no {
-  background: #2196f3;
+  background: #f29728;
 }
 
 .popup-no:hover:not(:disabled) {
-  background: #0b7dda;
+  background: #f79319;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 4px 12px rgba(240, 243, 246, 0.3);
 }
 
 .popup-btn:disabled {

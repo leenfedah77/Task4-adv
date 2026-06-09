@@ -19,9 +19,9 @@ const ReadItems = () => {
   const perPage = 6;
 
   const defaultImage =
-    "https://via.placeholder.com/300x200?text=No+Image&bg=E8E8E8&textColor=999";
+    "/image/iphone.webp";
 
-  // صور افتراضية جميلة للعرض الأولي
+
   const placeholderProducts: Item[] = [
     {
       id: -1,
@@ -79,11 +79,11 @@ const ReadItems = () => {
         }
       );
 
-      console.log("✅ Items loaded:", res.data);
+      console.log(" Items loaded:", res.data);
       setItems(res.data.data || res.data || []);
       setLoading(false);
     } catch (error: any) {
-      console.error("❌ Error fetching items:", error);
+      console.error(" Error fetching items:", error);
       setError("Failed to load products");
       setLoading(false);
     }
@@ -107,13 +107,13 @@ const ReadItems = () => {
         }
       );
 
-      console.log("✅ Product deleted successfully");
+      console.log(" Product deleted successfully");
       setDeletePopup(false);
       setSelectedItem(null);
       setDeleteLoading(false);
       await getItems();
     } catch (error) {
-      console.error("❌ Delete Error:", error);
+      console.error(" Delete Error:", error);
       setDeleteLoading(false);
       alert("Failed to delete item");
     }
@@ -134,31 +134,31 @@ const ReadItems = () => {
       <Sidebar />
 
       <div className="container">
-        {/* top bar */}
+        
         <div className="topbar">
           <input
-            placeholder="🔍 Search product by name"
+            placeholder=" Search product by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
           <Link to="/dashboard/add">
-            <button className="add-btn">➕ ADD NEW PRODUCT</button>
+            <button className="add-btn"> ADD NEW PRODUCT</button>
           </Link>
         </div>
 
-        {/* error message */}
+        
         {error && (
           <div className="error-banner">
             {error}
           </div>
         )}
 
-        {/* grid */}
+       
         <div className="grid">
           {loading ? (
             <div className="loading-container">
-              <p>⏳ Loading products...</p>
+              <p> Loading products...</p>
             </div>
           ) : paginated.length > 0 ? (
             paginated.map((item) => (
@@ -170,7 +170,7 @@ const ReadItems = () => {
                   pointerEvents: item.id < 0 ? "none" : "auto",
                 }}
               >
-                {/* actions - visible on hover */}
+               
                 {item.id > 0 && (
                   <div className="card-actions">
                     <Link to={`/dashboard/edit/${item.id}`}>
@@ -178,7 +178,7 @@ const ReadItems = () => {
                         className="edit-btn"
                         title="Edit product"
                       >
-                        ✏️ EDIT
+                         EDIT
                       </button>
                     </Link>
 
@@ -191,12 +191,12 @@ const ReadItems = () => {
                       title="Delete product"
                       disabled={deleteLoading}
                     >
-                      🗑️ DELETE
+                       DELETE
                     </button>
                   </div>
                 )}
 
-                {/* image - clickable to show details */}
+                
                 {item.id > 0 ? (
                   <Link to={`/dashboard/show/${item.id}`}>
                     <img
@@ -228,19 +228,19 @@ const ReadItems = () => {
             ))
           ) : (
             <div className="empty-container">
-              <p>📦 No products match your search</p>
+              <p> No products match your search</p>
             </div>
           )}
         </div>
 
-        {/* pagination */}
+        
         {paginated.length > 0 && items.length > 0 && (
           <div className="pagination">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
-              ← Previous
+              ← 
             </button>
 
             <span>Page {page}</span>
@@ -249,12 +249,12 @@ const ReadItems = () => {
               disabled={page * perPage >= filteredItems.length}
               onClick={() => setPage(page + 1)}
             >
-              Next →
+              →
             </button>
           </div>
         )}
 
-        {/* delete popup */}
+        
         {deletePopup && selectedItem && (
           <DeletePopup
             onConfirm={() => {
